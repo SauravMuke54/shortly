@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
@@ -22,7 +22,7 @@ async def shorten(
 ):
     long_url = str(request.url)
 
-    expire_time = datetime.utcnow() + timedelta(hours=12)
+    expire_time = datetime.now(timezone.utc) + timedelta(hours=12)
 
     # First save URL and get database ID
     url = URL(
