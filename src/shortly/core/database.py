@@ -7,7 +7,6 @@ from shortly.core.config import DATABASE_URL
 class Base(DeclarativeBase):
     pass
 
-
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
@@ -18,7 +17,6 @@ SessionLocal = sessionmaker(
     autoflush=False,
     autocommit=False,
 )
-
 
 def get_db():
     db = SessionLocal()
