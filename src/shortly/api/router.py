@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from shortly.api.routes import short_url, redirect
+
+from shortly.api.routes import redirect, short_url
 
 api_router = APIRouter()
 
