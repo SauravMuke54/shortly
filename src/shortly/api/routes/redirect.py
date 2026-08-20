@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
-from sqlalchemy import update
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from shortly.core.database import get_db
