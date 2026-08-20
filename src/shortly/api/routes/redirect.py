@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -22,6 +24,12 @@ async def redirect_url(
         raise HTTPException(
             status_code=404,
             detail="Short URL not found",
+        )
+
+    if url.expires_at and url.expires_at <= datetime.now(timezone.utc):
+        raise HTTPException(
+            status_code=410,
+            detail="Short URL has expired",
         )
 
     return RedirectResponse(
