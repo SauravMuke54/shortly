@@ -1,9 +1,14 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, Text
+from sqlalchemy import DateTime, Integer, Sequence, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from shortly.core.database import Base
+
+# Explicit, named sequence so we can pull the next id *before* insert
+# and encode it into short_code in the same row — no placeholder, no
+# second UPDATE, no race window.
+url_id_seq = Sequence("url_id_seq")
 
 
 class URL(Base):
@@ -11,14 +16,15 @@ class URL(Base):
 
     id: Mapped[int] = mapped_column(
         Integer,
+        url_id_seq,
         primary_key=True,
-        autoincrement=True,
+        server_default=url_id_seq.next_value(),
     )
 
-    short_code: Mapped[str | None] = mapped_column(
+    short_code: Mapped[str] = mapped_column(
         String(10),
         unique=True,
-        nullable=True,
+        nullable=False,
         index=True,
     )
 

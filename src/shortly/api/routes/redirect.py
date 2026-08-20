@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-
+from sqlalchemy import update
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -31,6 +31,11 @@ async def redirect_url(
             status_code=410,
             detail="Short URL has expired",
         )
+
+    db.execute(
+        update(URL).where(URL.id == url_id).values(click_count=URL.click_count + 1)
+    )
+    db.commit()
 
     return RedirectResponse(
         url=url.original_url,

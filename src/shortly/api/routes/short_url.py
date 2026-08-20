@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from shortly.core.database import get_db
 from shortly.models.requests import LongUrl
-from shortly.models.urls import URL
+from shortly.models.urls import URL, url_id_seq
 from shortly.utils.base62 import encode_base62
 
 router = APIRouter(tags=["short-url-api"])
@@ -24,23 +24,20 @@ async def shorten(
 
     expire_time = datetime.now(timezone.utc) + timedelta(hours=12)
 
-    # First save URL and get database ID
+    # Pull the next id from the DB sequence up front so we can encode
+    # short_code before the row is ever written. One insert, no
+    # placeholder value, no window where short_code is empty/duplicate.
+    next_id = db.execute(url_id_seq).scalar()
+    short_code = encode_base62(next_id)
+
     url = URL(
+        id=next_id,
         original_url=long_url,
         expires_at=expire_time,
-        short_code="",  # temporary
+        short_code=short_code,
     )
 
     db.add(url)
-    db.commit()
-    db.refresh(url)
-
-    # Convert DB ID → Base62
-    short_code = encode_base62(url.id)
-
-    # Store short code
-    url.short_code = short_code
-
     db.commit()
     db.refresh(url)
 
